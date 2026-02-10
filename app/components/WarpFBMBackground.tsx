@@ -1,13 +1,14 @@
-// components/WarpFBMBackground.jsx
+'use client'
+
 import React, { useRef } from 'react'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { shaderMaterial } from '@react-three/drei'
 import * as THREE from 'three'
 
-// Shader material
+// ---------------- Shader Material ----------------
 const WarpFBMMaterial = shaderMaterial(
   { iTime: 0, iResolution: new THREE.Vector2() },
-  // Vertex shader
+  // Vertex Shader
   `
     varying vec2 vUv;
     void main() {
@@ -15,7 +16,7 @@ const WarpFBMMaterial = shaderMaterial(
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
-  // Fragment shader
+  // Fragment Shader
   `
     uniform float iTime;
     uniform vec2 iResolution;
@@ -90,21 +91,22 @@ const WarpFBMMaterial = shaderMaterial(
 
 extend({ WarpFBMMaterial })
 
+// ---------------- React Component ----------------
 export default function WarpFBMBackground() {
-  const matRef = useRef()
+  const matRef = useRef<THREE.ShaderMaterial>(null)
   const { size } = useThree()
 
   useFrame(({ clock }) => {
     if(matRef.current) {
-      matRef.current.iTime = clock.getElapsedTime()
-      matRef.current.iResolution.set(size.width, size.height)
+      matRef.current.uniforms.iTime.value = clock.getElapsedTime()
+      matRef.current.uniforms.iResolution.value.set(size.width, size.height)
     }
   })
 
   return (
     <mesh>
       <planeGeometry args={[2, 2]} />
-      <warpFBMMaterial ref={matRef} />
+      <primitive object={new WarpFBMMaterial()} ref={matRef} />
     </mesh>
   )
 }

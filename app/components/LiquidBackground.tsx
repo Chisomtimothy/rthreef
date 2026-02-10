@@ -1,10 +1,11 @@
-// components/LiquidBackground.jsx
+'use client'
+
 import React, { useRef } from 'react'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { shaderMaterial } from '@react-three/drei'
 import * as THREE from 'three'
 
-// Shader material
+// 1️⃣ Shader material
 const LiquidShaderMaterial = shaderMaterial(
   { iTime: 0, iResolution: new THREE.Vector2() },
   // Vertex Shader
@@ -15,7 +16,7 @@ const LiquidShaderMaterial = shaderMaterial(
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
   `,
-  // Fragment Shader (your GLSL adapted)
+  // Fragment Shader
   `
     uniform float iTime;
     uniform vec2 iResolution;
@@ -82,21 +83,21 @@ const LiquidShaderMaterial = shaderMaterial(
 extend({ LiquidShaderMaterial })
 
 export default function LiquidBackground() {
-  const matRef = useRef()
+  const matRef = useRef<THREE.ShaderMaterial>(null)
   const { size } = useThree()
 
   useFrame(({ clock }) => {
     if (matRef.current) {
-      matRef.current.iTime = clock.getElapsedTime()
-      matRef.current.iResolution.set(size.width, size.height)
+      matRef.current.uniforms.iTime.value = clock.getElapsedTime()
+      matRef.current.uniforms.iResolution.value.set(size.width, size.height)
     }
   })
 
   return (
-    <mesh position={[0,0,-1]}>
-      {/* Fullscreen plane in NDC space */}
+    <mesh position={[0, 0, -1]}>
+      {/* Fullscreen plane */}
       <planeGeometry args={[2, 2]} />
-      <liquidShaderMaterial ref={matRef} />
+      <primitive object={new LiquidShaderMaterial()} ref={matRef} />
     </mesh>
   )
 }

@@ -39,7 +39,6 @@ const VectorFieldMaterial = shaderMaterial(
     }
 
     void main() {
-      // Correct aspect ratio and scale
       vec2 p = (vUv - 0.5) * scale;
       p.x *= iResolution.x / iResolution.y;
 
@@ -70,13 +69,13 @@ extend({ VectorFieldMaterial })
 
 // ---------------- React Component ----------------
 export default function VectorFieldBackground() {
-  const materialRef = useRef()
+  const materialRef = useRef<THREE.ShaderMaterial>(null)
   const { size } = useThree()
 
   useFrame(({ clock }) => {
     if(materialRef.current){
-      materialRef.current.iTime = clock.getElapsedTime()
-      materialRef.current.iResolution.set(size.width, size.height)
+      materialRef.current.uniforms.iTime.value = clock.getElapsedTime()
+      materialRef.current.uniforms.iResolution.value.set(size.width, size.height)
     }
   })
 
@@ -84,7 +83,7 @@ export default function VectorFieldBackground() {
     <mesh>
       {/* Fullscreen plane */}
       <planeGeometry args={[2, 2]} />
-      <vectorFieldMaterial ref={materialRef} />
+      <primitive object={new VectorFieldMaterial()} ref={materialRef} />
     </mesh>
   )
 }
