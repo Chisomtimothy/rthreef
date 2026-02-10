@@ -1,4 +1,5 @@
-// components/CosWaveBackground.jsx
+'use client'
+
 import React, { useRef } from 'react'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import { shaderMaterial } from '@react-three/drei'
@@ -50,12 +51,12 @@ const CosWaveMaterial = shaderMaterial(
 extend({ CosWaveMaterial })
 
 export default function CosWaveBackground() {
-  const matRef = useRef()
+  // ✅ Typed ref for TypeScript
+  const matRef = useRef<InstanceType<typeof CosWaveMaterial>>(null)
   const { size, viewport, camera } = useThree()
 
-  // Calculate full-screen plane for perspective camera
-  const width = viewport.getCurrentViewport(camera, [0, 0, -1]).width
-  const height = viewport.getCurrentViewport(camera, [0, 0, -1]).height
+  // Full-screen plane dimensions for perspective camera
+  const { width, height } = viewport.getCurrentViewport(camera, [0, 0, -1])
 
   useFrame(({ clock }) => {
     if (matRef.current) {
@@ -65,9 +66,10 @@ export default function CosWaveBackground() {
   })
 
   return (
-    <mesh>
-        <planeGeometry args={[2, 2]} />
-        <cosWaveMaterial ref={matRef} />
+    <mesh position={[0, 0, -1]}>
+      {/* Full-screen plane */}
+      <planeGeometry args={[width, height]} />
+      <cosWaveMaterial ref={matRef} />
     </mesh>
   )
 }
