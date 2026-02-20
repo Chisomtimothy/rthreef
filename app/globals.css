@@ -12,6 +12,16 @@
   --font-mono: var(--font-geist-mono);
 }
 
+@font-face {
+  font-family: 'Anurati';
+  src: url('/fonts/Anurati-Regular.otf') format('opentype');
+}
+
+.logo-font {
+  font-family: 'Anurati', serif;
+  font-weight: 100;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -21,5 +31,29 @@
 
 body {
   color: white;
+  padding: 0;
+  margin: 0;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+nav {
+  padding: 10px;
+}
+
+.links {
+  font-size: 14px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: black
+}
+::-webkit-scrollbar-thumb {
+    background: gray;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-track-piece {
+    background: transparent;
 }

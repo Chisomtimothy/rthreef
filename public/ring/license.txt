@@ -1,0 +1,11 @@
+Model Information:
+* title:	Doji Diamond Ring
+* source:	https://sketchfab.com/3d-models/doji-diamond-ring-297133c25c4b4d62b3237b05f800e323
+* author:	M. Visual (https://sketchfab.com/baoquy37)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Doji Diamond Ring" (https://sketchfab.com/3d-models/doji-diamond-ring-297133c25c4b4d62b3237b05f800e323) by M. Visual (https://sketchfab.com/baoquy37) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
