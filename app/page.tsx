@@ -195,9 +195,6 @@ export default function Home() {
 
       <div className='relative h-screen w-full p-5'>
         <motion.div className='sticky top-60 flex max-w-80 mx-auto justify-between text-4xl text-[#E5E5E5] font-serif'>
-          <motion.span
-            className='absolute inset-0 bg-black'
-          ></motion.span>
           <span>O</span>
           <span className='text-amber-300'>N</span>
           <span>Y</span>
