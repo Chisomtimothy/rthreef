@@ -110,7 +110,9 @@ export default function Home() {
   const { scrollYProgress } = useScroll();
 
   const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
-  const width = useTransform(scrollYProgress, [0, 0.2], ['80%', '100%']);
+  const width = useTransform(scrollYProgress, [0, 0.2], ['0', '100%']);
+  const width2 = useTransform(scrollYProgress, [0.2, 0.4], ['0', '100%']);
+  const width3 = useTransform(scrollYProgress, [0.4, 0.6], ['0', '100%']);
   // const background = useTransform(scrollYProgress, [0, 1], ['#ff0000', '#00ffff'])
 
   return (
@@ -141,14 +143,71 @@ export default function Home() {
           />
           
           <Suspense fallback={null}>
-            {/* <Model /> */}
-            {/* <pointLight intensity={10} position={[0, -0.5, 0]} /> */}
+            <Model />
             <Environment files={'studio.exr'} environmentIntensity={0.3} />
           </Suspense>
         </Canvas>
       </div>
 
-     
+      <div className='fixed z-[100] inset-0 w-full h-15 p-2 px-6'>
+        <div className='flex justify-between items-center h-full py-2'>
+          <div className='logo-font text-[9px] tracking-[5px]'>
+            ONYX
+          </div>
+
+          <div className=''>
+            <div className='flex sm:hidden'>
+              <button className='bg-[none] aspect-square h-5 flex items-center justify-center'>
+                <span>+</span>
+              </button>
+            </div>
+            <div className='hidden sm:flex gap-3 items-center font-sans text-[9px] text-white tracking-[0.2em] uppercase'>
+              <Link href='#'>Collections</Link>
+              <span className='w-1 h-1 bg-gray-500 rounded-full'></span>
+              <Link href='#'>Atelier</Link>
+              <span className='w-1 h-1 bg-gray-500 rounded-full'></span>
+              <Link href='#'>Archive</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className='fixed w-full z-100 bottom-5 flex items-center justify-center px-8'>
+
+        <div className='left-1/2 flex items-center gap-1.5 h-8 p-1 rounded-full'>
+          <button className='h-full aspect-square text-white hover:text-white hover:bg-white/10 hover:border-white/20 transition-all rounded-full flex items-center justify-center group active:scale-90 cursor-pointer'>
+            <span className="text-sm font-light leading-none">+</span>
+          </button>
+
+          <nav className='h-full flex items-center justify-center rounded-full text-white min-w-[100px] mix-blend-difference'>
+            <div className='flex items-center gap-2.5 tracking-[0.4em] uppercase text-[8px] font-bold'>
+              <span className='text-amber-300'>01</span>
+              <span className="text-white">Home</span>
+            </div>
+          </nav>
+
+          <button className='h-full aspect-square text-white hover:text-white hover:bg-white/10 hover:border-white/20 transition-all rounded-full flex items-center justify-center group active:scale-90'>
+            <span className="text-sm font-light leading-none">+</span>
+          </button>
+        </div>
+
+      </div>
+
+      <div className='relative h-screen w-full p-5'>
+        <motion.div className='sticky top-60 flex max-w-80 mx-auto justify-between text-4xl text-[#E5E5E5] font-serif'>
+          <motion.span
+            className='absolute inset-0 bg-black'
+          ></motion.span>
+          <span>O</span>
+          <span className='text-amber-300'>N</span>
+          <span>Y</span>
+          <span>X</span>
+        </motion.div>
+      </div>
+
+      <div className='relative h-500 w-full bg-white p-5'>
+
+      </div>
 
 
     </main>
