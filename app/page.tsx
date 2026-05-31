@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import { Canvas, useFrame } from '@react-three/fiber';
-import FluidBackground from './components/FluidBcakground';
+import FluidBackground from './components/FluidBackground';
 import { Environment, OrbitControls, useGLTF } from '@react-three/drei';
 import { useScroll, useTransform, motion } from 'framer-motion';
 import * as THREE from 'three';
@@ -67,8 +67,9 @@ const Home = () => {
   const homeCopyOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0], { clamp: false });
 
   return (
-    <main className='relative w-full h-screen border-t bg-black px-5 lg:px-10'>
+    <main className='relative w-full h-screen border-t bg-black'>
 
+    <div className='px-5 lg:px-10'>
       {/* FLUID BACKGROUND */}
       <div className='fixed h-screen w-full inset-0 z-0'>
         <Canvas>
@@ -96,9 +97,9 @@ const Home = () => {
             <Model position={[0, 0, 0.3]} rotation={[Math.PI * 0.5, 0, 0]} />
             <Model position={[0.4, 0, 0]} rotation={[Math.PI * -0.5, 0, 0]} /> */}
 
-            <Model position={[-0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} />
+            {/* <Model position={[-0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} />
             <Model position={[0, 0.06, 0.25]} rotation={[Math.PI * 0.5, 0, 0]} />
-            <Model position={[0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} />
+            <Model position={[0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} /> */}
 
             <Environment files='studio.exr' environmentIntensity={0.4} />
           </Canvas>
@@ -112,31 +113,9 @@ const Home = () => {
           <span className='absolute bottom-0 right-0'>+</span>
         </div>
       </div>
+    </div>
 
       <Hero />
-
-      {/* HOME COPY */}
-      {/* <motion.div 
-        className='fixed w-full h-screen flex flex-col items-center px-5 py-25 font-serif justify-between text-[40px]'
-        style={{
-          opacity: homeCopyOpacity
-        }}
-      >
-        <div className='w-full flex justify-evenly'>
-          <span>O</span>
-          <span className='text-[#C9A84C]'>N</span>
-          <span>Y</span>
-          <span>X</span>
-        </div>
-
-        <div className='flex flex-col items-center'>
-          <span className='text-[#C9A84C] text-[10px] tracking-[3px] mt-20 font-mono uppercase'>Fine Jewellery · Est. Present</span>
-          <h1 className='text-center mt-5'>
-            Some things are <br />
-              <em  className='text-[#C9A84C]'>not made for daylight.</em>
-          </h1>
-        </div>
-      </motion.div> */}
 
     </main>
   )

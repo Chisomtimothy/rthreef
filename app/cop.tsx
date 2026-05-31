@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useInView } from 'framer-motion';
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import FluidBackground from "./components/FluidBcakground";
+import FluidBackground from "./components/FluidBackground";
 import Link from "next/link";
 import { Environment, useGLTF } from "@react-three/drei";
 import { Suspense, useEffect, useRef, useState } from "react";

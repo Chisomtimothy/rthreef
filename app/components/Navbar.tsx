@@ -1,25 +1,30 @@
 import React from 'react'
 
 const Navbar = () => {
+
+  
+
   return (
     <div 
       className='fixed z-1000 w-full pt-5 px-5 lg:px-10 font-mono'
       // style={{fontFamily: '"Inter", sans-serif'}}
     >
         <div className='flex justify-between items-center'>
-            <div className='logo-font text-[8px] mix-blend-difference tracking-[2px] bg-white/10 backdrop-blur-[10px] px-3 py-2 rounded-full'>
-              O <span className='text-[#C9A84C]'>N</span> Y X
+            <div className='logo-font text-[8px] tracking-[2px] bg-white/90 backdrop-blur-[10px] px-3 py-1 rounded-full'>
+              <div className='mix-blend-difference'>
+                O <span className='text-[#C9A84C]'>N</span> Y X
+              </div>
             </div>
 
-            <div className='lg:hidden gap-5 flex justify-between items-center mix-blend-difference bg-white/10 backdrop-blur-[10px] px-3 py-2 rounded-full'>
-              <button className='text-[11px]'>
+            <div className='lg:hidden gap-5 flex justify-between items-center mix-blend-difference bg-white/90 backdrop-blur-[10px] px-3 py-1 rounded-full'>
+              <button className='text-[11px] mix-blend-difference'>
                 <span className=''>+</span>
               </button>
-              <div className='flex gap-1 text-[8px]'>
-                <span className='text-[#C9A84C]'>01.</span>
+              <div className='flex gap-1 text-[8px] mix-blend-difference'>
+                <span className='text-[#C9A84C] mix-blend-normal'>01.</span>
                 <span className='tracking-[2px] uppercase'>home</span>
               </div>
-              <button className='text-[11px]'>
+              <button className='text-[11px] mix-blend-difference'>
                 +
               </button>
             </div>
