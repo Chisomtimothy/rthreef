@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ONYX — Full Design Specification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Tenor+Sans&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #050505;
+    --deep: #0d0d0d;
+    --surface: #141414;
+    --border: rgba(255,255,255,0.07);
+    --gold: #C9A84C;
+    --gold-light: #E8C97A;
+    --gold-muted: rgba(201,168,76,0.4);
+    --white: #F5F0E8;
+    --grey: #8A8A8A;
+    --grey-light: #B5B5B5;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: var(--black); }
+  ::-webkit-scrollbar-thumb { background: var(--gold-muted); }
+
+  /* ─── COVER ─── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    padding: 80px 40px;
+    overflow: hidden;
+  }
+
+  .cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 50%, rgba(201,168,76,0.04) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.02) 80px),
+      repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.02) 80px);
+    pointer-events: none;
+  }
+
+  .cover-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0.8;
+  }
+
+  .cover-wordmark {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(80px, 15vw, 180px);
+    font-weight: 300;
+    letter-spacing: 0.35em;
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .cover-wordmark span { color: var(--gold); }
+
+  .cover-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5em;
+    color: var(--grey);
+    text-transform: uppercase;
+    margin-bottom: 56px;
+  }
+
+  .cover-meta {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cover-meta-item {
+    text-align: center;
+  }
+
+  .cover-meta-item .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .cover-meta-item .value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px;
+    font-style: italic;
+    color: var(--grey-light);
+  }
+
+  /* ─── NAV ─── */
+  .spec-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,5,5,0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .spec-nav a {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey);
+    text-decoration: none;
+    padding: 18px 20px;
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .spec-nav a:first-child { border-left: 1px solid var(--border); }
+  .spec-nav a:hover { color: var(--gold); }
+
+  /* ─── LAYOUT ─── */
+  .section {
+    padding: 100px 0;
+    border-bottom: 1px solid var(--border);
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    margin-bottom: 64px;
+  }
+
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    line-height: 1.1;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  /* ─── PROSE ─── */
+  .prose {
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.85;
+    color: var(--grey-light);
+    max-width: 720px;
+  }
+
+  .prose p { margin-bottom: 20px; }
+  .prose strong { color: var(--white); font-weight: 400; }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    border-left: 1px solid var(--gold);
+    padding: 20px 28px;
+    margin: 32px 0;
+    background: rgba(201,168,76,0.03);
+  }
+
+  .callout .callout-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .callout p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-style: italic;
+    color: var(--white);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ─── BRAND VOICE TABLE ─── */
+  .voice-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 40px 0;
+    border: 1px solid var(--border);
+  }
+
+  .voice-cell {
+    padding: 28px 32px;
+    background: var(--deep);
+  }
+
+  .voice-cell.header {
+    background: var(--surface);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .voice-cell .word {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 300;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .voice-cell .def {
+    font-size: 13px;
+    color: var(--grey);
+    line-height: 1.6;
+  }
+
+  /* ─── COLOR SWATCHES ─── */
+  .color-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 40px 0;
+  }
+
+  .swatch {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .swatch-block {
+    height: 80px;
+    border: 1px solid var(--border);
+    margin-bottom: 14px;
+  }
+
+  .swatch-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .swatch-hex {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--grey);
+  }
+
+  .swatch-role {
+    font-size: 12px;
+    color: var(--grey);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* ─── TYPE SPECIMEN ─── */
+  .type-specimen {
+    margin: 40px 0;
+  }
+
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    gap: 40px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .type-meta {
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  .type-meta .t-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .type-meta .t-specs {
+    font-size: 11px;
+    color: var(--grey);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .type-sample { flex: 1; }
+
+  /* ─── PAGE SITEMAP ─── */
+  .page-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px;
+    margin: 40px 0;
+  }
+
+  .page-card {
+    background: var(--deep);
+    padding: 32px;
+    border: 1px solid var(--border);
+    position: relative;
+    cursor: default;
+    transition: border-color 0.3s;
+  }
+
+  .page-card:hover { border-color: var(--gold-muted); }
+
+  .page-card .page-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    margin-bottom: 16px;
+    opacity: 0.7;
+  }
+
+  .page-card .page-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    font-weight: 300;
+    margin-bottom: 12px;
+  }
+
+  .page-card .page-desc {
+    font-size: 13px;
+    color: var(--grey);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .page-card .page-sections {
+    list-style: none;
+  }
+
+  .page-card .page-sections li {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--grey-light);
+    letter-spacing: 0.1em;
+    padding: 6px 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .page-card .page-sections li::before {
+    content: '—';
+    color: var(--gold);
+    opacity: 0.5;
+    font-size: 8px;
+  }
+
+  /* ─── COPY BLOCKS ─── */
+  .copy-section {
+    margin: 48px 0;
+  }
+
+  .copy-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .copy-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .copy-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 32px 40px;
+    margin-bottom: 16px;
+  }
+
+  .copy-block .headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .copy-block .headline em { font-style: italic; color: var(--gold); }
+
+  .copy-block .body-copy {
+    font-size: 14px;
+    color: var(--grey-light);
+    line-height: 1.85;
+    max-width: 600px;
+  }
+
+  .copy-block .eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* ─── 3D ASSET LIST ─── */
+  .asset-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2px;
+    margin: 40px 0;
+  }
+
+  .asset-card {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    padding: 28px;
+    transition: border-color 0.3s;
+  }
+
+  .asset-card:hover { border-color: var(--gold-muted); }
+
+  .asset-card .priority {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding: 4px 8px;
+    display: inline-block;
+  }
+
+  .priority.must { background: rgba(201,168,76,0.1); color: var(--gold); }
+  .priority.nice { background: rgba(255,255,255,0.04); color: var(--grey); }
+
+  .asset-card .asset-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    margin-bottom: 8px;
+    color: var(--white);
+  }
+
+  .asset-card .asset-desc {
+    font-size: 12px;
+    color: var(--grey);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .asset-card .asset-spec {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-light);
+    opacity: 0.7;
+  }
+
+  /* ─── INTERACTION SPEC ─── */
+  .interaction-list {
+    margin: 40px 0;
+  }
+
+  .interaction-item {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .interaction-trigger {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .interaction-desc {
+    font-size: 13px;
+    color: var(--grey-light);
+    line-height: 1.7;
+  }
+
+  .interaction-desc strong { color: var(--white); font-weight: 400; }
+
+  /* ─── TECH STACK ─── */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2px;
+    margin: 40px 0;
+  }
+
+  .tech-card {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+
+  .tech-card .tech-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--white);
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  .tech-card .tech-role {
+    font-size: 12px;
+    color: var(--grey);
+  }
+
+  /* ─── CHECKLIST ─── */
+  .checklist {
+    margin: 40px 0;
+  }
+
+  .check-group {
+    margin-bottom: 48px;
+  }
+
+  .check-group-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .check-item:hover { padding-left: 6px; }
+
+  .check-box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .check-item.done .check-box {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.1);
+  }
+
+  .check-item.done .check-box::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--gold);
+  }
+
+  .check-item.done .check-text { color: var(--grey); text-decoration: line-through; text-decoration-color: var(--gold-muted); }
+
+  .check-text {
+    font-size: 14px;
+    color: var(--white);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .check-sub {
+    font-size: 11px;
+    color: var(--grey);
+    margin-top: 4px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  /* ─── FOOTER ─── */
+  .spec-footer {
+    text-align: center;
+    padding: 80px 40px;
+    border-top: 1px solid var(--border);
+  }
+
+  .spec-footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+
+  /* ─── UTILS ─── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 48px 0;
+  }
+
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    border: 1px solid var(--gold-muted);
+    padding: 3px 10px;
+    display: inline-block;
+    text-transform: uppercase;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    margin: 40px 0;
+  }
+
+  @media (max-width: 700px) {
+    .section { padding-left: 28px; padding-right: 28px; }
+    .voice-grid, .two-col, .interaction-item { grid-template-columns: 1fr; }
+    .type-row { flex-direction: column; gap: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <p class="cover-label">Design Specification — v1.0</p>
+  <h1 class="cover-wordmark">O<span>N</span>YX</h1>
+  <p class="cover-sub">Fine Jewellery · Est. Present</p>
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <span class="label">Type</span>
+      <span class="value">Luxury E-Commerce / Brand Site</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Stack</span>
+      <span class="value">Next.js · R3F · Three.js</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Status</span>
+      <span class="value">Design Phase</span>
+    </div>
+  </div>
+</div>
+
+<!-- SPEC NAV -->
+<nav class="spec-nav">
+  <a href="#brand">Brand</a>
+  <a href="#voice">Voice & Copy</a>
+  <a href="#design">Design System</a>
+  <a href="#pages">Pages</a>
+  <a href="#copy">Full Copy</a>
+  <a href="#3d">3D Assets</a>
+  <a href="#interactions">Interactions</a>
+  <a href="#checklist">Build Checklist</a>
+</nav>
+
+
+<!-- 01 BRAND CONCEPT -->
+<section class="section" id="brand">
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <h2 class="section-title">Brand <em>Concept</em></h2>
+  </div>
+
+  <div class="prose">
+    <p>ONYX is a fictional luxury fine jewellery house positioned in the space between heritage craftsmanship and contemporary digital experience. It doesn't try to be Tiffany's or Cartier — it's a darker, more editorial brand. Think the jewellery equivalent of a niche perfume house: opinionated, with a point of view, unapologetically aesthetic.</p>
+    <p>The brand name itself is the anchor. Onyx is a gemstone — black, lustrous, associated with strength, protection, and mystery. Every design decision should flow from that energy: dark, precise, restrained, quietly confident.</p>
+  </div>
+
+  <div class="callout">
+    <span class="callout-label">Brand Essence</span>
+    <p>"We don't make jewellery for every occasion. We make jewellery that becomes the occasion."</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <p class="copy-label" style="margin-bottom:16px;">What ONYX is</p>
+      <div class="tag">Dark & Considered</div>
+      <div class="tag">Editorial</div>
+      <div class="tag">Sculptural</div>
+      <div class="tag">Bespoke</div>
+      <div class="tag">Night-coded</div>
+      <div class="tag">Tactile</div>
+      <div class="tag">Quiet Luxury</div>
+    </div>
+    <div>
+      <p class="copy-label" style="margin-bottom:16px;">What ONYX is not</p>
+      <div class="tag" style="border-color:rgba(255,255,255,0.15); color:var(--grey);">Colourful</div>
+      <div class="tag" style="border-color:rgba(255,255,255,0.15); color:var(--grey);">Loud</div>
+      <div class="tag" style="border-color:rgba(255,255,255,0.15); color:var(--grey);">Discount / Sale-driven</div>
+      <div class="tag" style="border-color:rgba(255,255,255,0.15); color:var(--grey);">Maximalist branding</div>
+      <div class="tag" style="border-color:rgba(255,255,255,0.15); color:var(--grey);">Accessible / mass market</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="prose">
+    <p><strong>Target Audience.</strong> Wealthy, design-literate adults — late 20s to 50s — who treat their jewellery as they treat their wardrobe: intentionally. They shop Rick Owens, Bottega Veneta, or Lemaire. They read Apartamento. They're not impressed by logos.</p>
+    <p><strong>The 3D angle.</strong> The WebGL experience isn't a gimmick here — it's the product presentation. Other jewellery sites show flat photography. ONYX lets you be in the room with the piece. That's the entire competitive edge you need to lean into.</p>
+  </div>
+</section>
+
+
+<!-- 02 VOICE & COPY -->
+<section class="section" id="voice">
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <h2 class="section-title">Voice <em>& Tone</em></h2>
+  </div>
+
+  <div class="prose">
+    <p>ONYX speaks like a very knowledgeable person who doesn't need to impress you. Short sentences. No exclamation points. No hype. When it does expand, it's poetic — not purple, but precise and sensory. Copy should feel like it was written by someone who has actually held the pieces.</p>
+  </div>
+
+  <div class="voice-grid">
+    <div class="voice-cell header">Be this</div>
+    <div class="voice-cell header">Not this</div>
+
+    <div class="voice-cell">
+      <div class="word">Spare</div>
+      <div class="def">"Forged over eleven days. Finished by hand." — Let the brevity signal confidence.</div>
+    </div>
+    <div class="voice-cell">
+      <div class="word">Verbose</div>
+      <div class="def">"Our incredibly skilled team of world-class artisans meticulously crafts every piece with exceptional attention to detail."</div>
+    </div>
+
+    <div class="voice-cell">
+      <div class="word">Sensory</div>
+      <div class="def">"Cold to the touch. Warm on the skin." — Appeal to the body, not the wallet.</div>
+    </div>
+    <div class="voice-cell">
+      <div class="word">Commercial</div>
+      <div class="def">"Buy now and get free shipping on orders over $500."</div>
+    </div>
+
+    <div class="voice-cell">
+      <div class="word">Knowing</div>
+      <div class="def">"You already know if this is for you." — Trust the reader.</div>
+    </div>
+    <div class="voice-cell">
+      <div class="word">Pleading</div>
+      <div class="def">"Don't miss out! Limited stock available!"</div>
+    </div>
+
+    <div class="voice-cell">
+      <div class="word">Mythic</div>
+      <div class="def">"Every stone remembers where it came from." — Small gestures toward the eternal.</div>
+    </div>
+    <div class="voice-cell">
+      <div class="word">Generic</div>
+      <div class="def">"Perfect for any occasion — anniversaries, birthdays, weddings."</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- 03 DESIGN SYSTEM -->
+<section class="section" id="design">
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <h2 class="section-title">Design <em>System</em></h2>
+  </div>
+
+  <!-- Colour -->
+  <div class="copy-label">Colour Palette</div>
+  <div class="color-row">
+    <div class="swatch">
+      <div class="swatch-block" style="background:#050505;"></div>
+      <div class="swatch-name">Void</div>
+      <div class="swatch-hex">#050505</div>
+      <div class="swatch-role">Primary background</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#141414;"></div>
+      <div class="swatch-name">Surface</div>
+      <div class="swatch-hex">#141414</div>
+      <div class="swatch-role">Cards, panels</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#C9A84C;"></div>
+      <div class="swatch-name">Gold</div>
+      <div class="swatch-hex">#C9A84C</div>
+      <div class="swatch-role">Primary accent</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#E8C97A;"></div>
+      <div class="swatch-name">Gold Light</div>
+      <div class="swatch-hex">#E8C97A</div>
+      <div class="swatch-role">Hover states</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#F5F0E8;"></div>
+      <div class="swatch-name">Parchment</div>
+      <div class="swatch-hex">#F5F0E8</div>
+      <div class="swatch-role">Primary text</div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-block" style="background:#8A8A8A;"></div>
+      <div class="swatch-name">Stone</div>
+      <div class="swatch-hex">#8A8A8A</div>
+      <div class="swatch-role">Secondary text</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Typography -->
+  <div class="copy-label">Typography</div>
+  <div class="type-specimen">
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="t-name">Display</div>
+        <div class="t-specs">Cormorant Garamond<br>300 / Italic<br>clamp(60–140px)</div>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:'Cormorant Garamond',serif; font-size:clamp(40px,6vw,80px); font-weight:300; letter-spacing:0.05em; line-height:1;">The Stone<br><em style="font-style:italic;color:var(--gold);">Remembers</em></span>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="t-name">Subheading</div>
+        <div class="t-specs">Cormorant Garamond<br>300 Regular<br>24–36px</div>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; letter-spacing:0.08em; color:var(--grey-light);">Crafted in darkness. Worn in light.</span>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="t-name">Body</div>
+        <div class="t-specs">Tenor Sans<br>400<br>14–16px</div>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:'Tenor Sans',sans-serif; font-size:15px; color:var(--grey-light); line-height:1.8;">Each piece begins as a conversation. The Atelier process takes between eight and fourteen weeks from first sketch to final setting. We don't rush stone. We don't rush craft.</span>
+      </div>
+    </div>
+
+    <div class="type-row">
+      <div class="type-meta">
+        <div class="t-name">Label / UI</div>
+        <div class="t-specs">Space Mono<br>400<br>9–11px / 0.3em tracked</div>
+      </div>
+      <div class="type-sample">
+        <span style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.35em; color:var(--gold); text-transform:uppercase;">Collections · Atelier · Archive</span>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <!-- Motion principles -->
+  <div class="copy-label">Motion Principles</div>
+  <div class="prose">
+    <p><strong>Slow is luxury.</strong> Nothing snaps. Transitions ease in and out over 600–1200ms. The background shader you already have sets the right tempo — everything else should feel like it belongs in that same world.</p>
+    <p><strong>The 3D ring should not auto-rotate.</strong> Replace rotation with idle breathing: a subtle oscillation on the Y-axis (±5°) and a very slow Z drift. The ring should react to cursor position — parallax-driven tilt. This makes it feel alive without being distracting.</p>
+    <p><strong>Text arrives late.</strong> Hero copy fades in after the scene loads, staggered by line. The user should see the ring and background first, then the words. Never the other way around.</p>
+    <p><strong>Scroll = camera direction.</strong> On the homepage, scrolling should feel like moving through space — sections translate upward while 3D elements shift perspective or depth, not just scroll.</p>
+  </div>
+</section>
+
+
+<!-- 04 PAGES -->
+<section class="section" id="pages">
+  <div class="section-header">
+    <span class="section-num">04</span>
+    <h2 class="section-title">Site <em>Architecture</em></h2>
+  </div>
+
+  <div class="prose">
+    <p>Five pages. Clean. Every page has one job and does it without apology.</p>
+  </div>
+
+  <div class="page-cards">
+
+    <div class="page-card">
+      <div class="page-num">PAGE 01</div>
+      <div class="page-name">Home</div>
+      <div class="page-desc">Immersive brand entry. The 3D hero does the selling. Copy introduces the house.</div>
+      <ul class="page-sections">
+        <li>Hero — Full-canvas 3D scene</li>
+        <li>Brand statement scroll section</li>
+        <li>Featured collection (3 pieces)</li>
+        <li>The Atelier — brief introduction</li>
+        <li>One editorial quote / manifesto</li>
+        <li>Footer</li>
+      </ul>
+    </div>
+
+    <div class="page-card">
+      <div class="page-num">PAGE 02</div>
+      <div class="page-name">Collections</div>
+      <div class="page-desc">Product gallery. Grid of pieces, filterable by material and type. Each piece links to its own page.</div>
+      <ul class="page-sections">
+        <li>Collection header + filter bar</li>
+        <li>Asymmetric product grid</li>
+        <li>Each tile: 3D preview on hover</li>
+        <li>Quick material / price info</li>
+      </ul>
+    </div>
+
+    <div class="page-card">
+      <div class="page-num">PAGE 03</div>
+      <div class="page-name">Product Detail</div>
+      <div class="page-desc">One piece. Full-screen 3D viewer. The page equivalent of holding something in your hands.</div>
+      <ul class="page-sections">
+        <li>Full-screen R3F viewer (orbitcontrols)</li>
+        <li>Piece name, material, dimensions</li>
+        <li>The story of the piece (100 words)</li>
+        <li>Material selector (if variants)</li>
+        <li>Enquire / Add to cart CTA</li>
+        <li>Related pieces (2–3)</li>
+      </ul>
+    </div>
+
+    <div class="page-card">
+      <div class="page-num">PAGE 04</div>
+      <div class="page-name">Atelier</div>
+      <div class="page-desc">About the house. The craft process. Bespoke commissions. The soul of the brand in long form.</div>
+      <ul class="page-sections">
+        <li>Studio manifesto header</li>
+        <li>The process (4 steps, visual)</li>
+        <li>Materials philosophy</li>
+        <li>Bespoke commission enquiry</li>
+      </ul>
+    </div>
+
+    <div class="page-card">
+      <div class="page-num">PAGE 05</div>
+      <div class="page-name">Archive</div>
+      <div class="page-desc">Past pieces, past commissions. More editorial than commercial. Proof of legacy.</div>
+      <ul class="page-sections">
+        <li>Year-filtered timeline</li>
+        <li>Editorial imagery per piece</li>
+        <li>Minimal copy — let work speak</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- 05 FULL COPY -->
+<section class="section" id="copy">
+  <div class="section-header">
+    <span class="section-num">05</span>
+    <h2 class="section-title">Full <em>Copywriting</em></h2>
+  </div>
+
+  <!-- Home -->
+  <div class="copy-label">Homepage — Hero</div>
+  <div class="copy-block">
+    <div class="eyebrow">Fine Jewellery · Est. Present</div>
+    <div class="headline">Some things are<br><em>not made for daylight.</em></div>
+    <p class="body-copy">ONYX is a jewellery house built in shadow. Each piece is conceived at the edge of excess and restraint, forged in precious metal, finished by hand. This is jewellery that doesn't need an occasion.</p>
+  </div>
+
+  <!-- Brand scroll section -->
+  <div class="copy-label">Homepage — Brand Statement (scroll section)</div>
+  <div class="copy-block">
+    <div class="headline" style="font-size:clamp(22px,3vw,36px); color:var(--grey-light);">We believe a piece of jewellery should stop time — not mark it.</div>
+    <p class="body-copy" style="margin-top:20px;">Every ring, every chain, every setting that leaves the ONYX atelier carries the hours of a person who chose not to rush. We don't produce collections on a calendar. We work when the work is ready.</p>
+  </div>
+
+  <!-- Collections intro -->
+  <div class="copy-label">Collections — Page Header</div>
+  <div class="copy-block">
+    <div class="eyebrow">The Work</div>
+    <div class="headline">Not a catalogue.<br><em>A considered body of work.</em></div>
+    <p class="body-copy">Each piece is limited. Some are singular. None of them were made to be ignored.</p>
+  </div>
+
+  <!-- Product copy examples -->
+  <div class="copy-label">Product — Example: "The Lucent Ring" (the ring in your hero)</div>
+  <div class="copy-block">
+    <div class="eyebrow">The Lucent · Ring</div>
+    <div class="headline" style="font-size: clamp(24px,3.5vw,40px);">Eleven stones.<br><em>One intention.</em></div>
+    <p class="body-copy">White gold band, pavé-set with VS-clarity diamonds along both shoulders. The centre stone — a 1.2ct oval — is chosen for its particular way of holding light, not refracting it. The result is a ring that glows from within rather than shouts. Worn on the right hand as often as the left. Forged over nine days. Yours for a lifetime, then someone else's for another.</p>
+    <p class="body-copy" style="margin-top:16px;"><strong>Material:</strong> 18k White Gold · <strong>Stones:</strong> VS Diamond Pavé · <strong>Weight:</strong> 4.2g · <strong>Made to order</strong></p>
+  </div>
+
+  <!-- Atelier -->
+  <div class="copy-label">Atelier — Page</div>
+  <div class="copy-block">
+    <div class="eyebrow">The Atelier</div>
+    <div class="headline">The work happens<br><em>before the work happens.</em></div>
+    <p class="body-copy">The ONYX atelier is not a factory. It is three people in a room who disagree about millimetres. Everything that leaves here has been held, questioned, and held again. We accept a small number of bespoke commissions each year. If you have a piece in mind — something specific, something you've never seen anywhere — write to us.</p>
+  </div>
+
+  <!-- Atelier process steps -->
+  <div class="copy-label">Atelier — Process Steps</div>
+  <div class="copy-block">
+    <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap:32px;">
+      <div>
+        <div class="eyebrow">Step 01</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:10px;">The Conversation</div>
+        <p style="font-size:13px; color:var(--grey-light); line-height:1.7;">We begin with a call or a letter. Tell us what you're carrying. What you want to mark, or refuse to mark. We'll listen more than we speak.</p>
+      </div>
+      <div>
+        <div class="eyebrow">Step 02</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:10px;">The Sketch</div>
+        <p style="font-size:13px; color:var(--grey-light); line-height:1.7;">Three sketches. Never more. We find that too many options produce compromise. You'll know which one is right before we finish the sentence.</p>
+      </div>
+      <div>
+        <div class="eyebrow">Step 03</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:10px;">The Making</div>
+        <p style="font-size:13px; color:var(--grey-light); line-height:1.7;">Eight to fourteen weeks. We'll send one update at the midpoint. Not because we're hiding anything — we simply don't believe in progress theatre.</p>
+      </div>
+      <div>
+        <div class="eyebrow">Step 04</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:22px; margin-bottom:10px;">The Delivery</div>
+        <p style="font-size:13px; color:var(--grey-light); line-height:1.7;">Wrapped in matte black. No ribbon. No tissue paper confetti. Yours, with a handwritten note and nothing else.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Archive -->
+  <div class="copy-label">Archive — Header</div>
+  <div class="copy-block">
+    <div class="eyebrow">Archive</div>
+    <div class="headline"><em>Everything we've made.</em><br>Some of it you can still have.</div>
+    <p class="body-copy">A record of the work. Singular pieces. Early experiments. Things we made that surprised even us. The archive is not a sale. It is a memory.</p>
+  </div>
+
+  <!-- Nav & global -->
+  <div class="copy-label">Navigation & Global UI</div>
+  <div class="copy-block">
+    <p class="body-copy"><strong>Wordmark:</strong> ONYX — always uppercase, always the full word, never abbreviated. The "N" can remain gold as per your current treatment — it's the right instinct.</p>
+    <p class="body-copy"><strong>Nav labels:</strong> Collections · Atelier · Archive — exactly as you have them. These are correct. Don't add more.</p>
+    <p class="body-copy"><strong>CTA language:</strong> "Enquire about this piece" (not Add to Cart) · "Write to the Atelier" (not Contact Us) · "View the work" (not See All Products) · "Begin a commission" (not Get Started)</p>
+    <p class="body-copy"><strong>Footer:</strong> ONYX · All pieces made to order · © Year · [Instagram] · [Email]</p>
+  </div>
+
+</section>
+
+
+<!-- 06 3D ASSETS -->
+<section class="section" id="3d">
+  <div class="section-header">
+    <span class="section-num">06</span>
+    <h2 class="section-title">3D Asset <em>Requirements</em></h2>
+  </div>
+
+  <div class="prose">
+    <p>Below is a prioritised list of models you need. Source from Sketchfab, TurboSquid, CGTrader, or commission them. All models should be GLB/GLTF format. Aim for under 5MB per model — optimise with <strong>gltf-transform</strong> or <strong>gltfpack</strong>.</p>
+  </div>
+
+  <div class="asset-grid">
+
+    <div class="asset-card">
+      <span class="priority must">Must Have</span>
+      <div class="asset-name">The Lucent Ring</div>
+      <div class="asset-desc">The hero piece. White gold pavé band with oval centre stone. Already in progress — refine the rotation behaviour.</div>
+      <div class="asset-spec">Format: GLB · Target: &lt;3MB · PBR materials required</div>
+    </div>
+
+    <div class="asset-card">
+      <span class="priority must">Must Have</span>
+      <div class="asset-name">Thin Chain Necklace</div>
+      <div class="asset-desc">Minimalist gold or oxidised silver chain. No pendant. Collections page hero.</div>
+      <div class="asset-spec">Format: GLB · Target: &lt;2MB · Suspended pose</div>
+    </div>
+
+    <div class="asset-card">
+      <span class="priority must">Must Have</span>
+      <div class="asset-name">Stud Earrings</div>
+      <div class="asset-desc">Single black diamond or onyx stud. Simple geometry, rich material.</div>
+      <div class="asset-spec">Format: GLB · Target: &lt;1.5MB · Show as a pair</div>
+    </div>
+
+    <div class="asset-card">
+      <span class="priority must">Must Have</span>
+      <div class="asset-name">Signet Ring</div>
+      <div class="asset-desc">Flat-faced ring, engraved surface. Masculine counterpoint to the Lucent.</div>
+      <div class="asset-spec">Format: GLB · Target: &lt;2MB · Dark metal finish</div>
+    </div>
+
+    <div class="asset-card">
+      <span class="priority nice">Nice to Have</span>
+      <div class="asset-name">Raw Gemstone</div>
+      <div class="asset-desc">Unset onyx or obsidian stone. For the Atelier page — materials philosophy section.</div>
+      <div class="asset-spec">Format: GLB · Abstract sculpture quality</div>
+    </div>
+
+    <div class="asset-card">
+      <span class="priority nice">Nice to Have</span>
+      <div class="asset-name">Cuff Bracelet</div>
+      <div class="asset-desc">Open cuff, dark metal. Architectural, sculptural feel.</div>
+      <div class="asset-spec">Format: GLB · Target: &lt;2.5MB</div>
+    </div>
+
+    <div class="asset-card">
+      <span class="priority nice">Nice to Have</span>
+      <div class="asset-name">Pendant / Amulet</div>
+      <div class="asset-desc">Abstract organic form, could be onyx stone wrapped in gold wire.</div>
+      <div class="asset-spec">Format: GLB · Hang from a chain if possible</div>
+    </div>
+
+  </div>
+
+  <div class="callout" style="margin-top:32px;">
+    <span class="callout-label">R3F Material Setup</span>
+    <p style="font-size:15px; font-family:'Tenor Sans',sans-serif; font-style:normal; color:var(--grey-light);">Use <strong style="color:var(--white);">MeshPhysicalMaterial</strong> for all jewellery. Set roughness 0–0.15, metalness 0.9–1.0. Use an HDR environment map (Poly Haven: "studio_small" or "jewelry_store" work well). Add a subtle bloom pass via @react-three/postprocessing. The result will look immediately professional.</p>
+  </div>
+</section>
+
+
+<!-- 07 INTERACTIONS -->
+<section class="section" id="interactions">
+  <div class="section-header">
+    <span class="section-num">07</span>
+    <h2 class="section-title">Interaction <em>Spec</em></h2>
+  </div>
+
+  <div class="interaction-list">
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Hero Ring — Idle</div>
+      <div class="interaction-desc"><strong>Remove auto-rotation.</strong> Replace with a slow Y-axis oscillation: rotate between -5° and +5° over 8 seconds, eased with Math.sin(). Add a very subtle Y float (bob ±3px over 6s). This reads as "alive" not "spinning product render."</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Hero Ring — Cursor</div>
+      <div class="interaction-desc">Map cursor X/Y to ring X/Y rotation offset (±8°). Use a lerp (0.05 factor) so movement is silky, not immediate. This makes the ring feel responsive to presence without being a toy.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Page Enter</div>
+      <div class="interaction-desc">Background shader visible immediately. Ring scales from 0.85 to 1.0 over 1200ms (ease out expo). Nav fades in at 800ms. Hero copy lines stagger in at 1000ms, 1200ms, 1400ms. Never show everything at once.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Nav — Hover</div>
+      <div class="interaction-desc">Letter spacing expands from 0.3em to 0.45em on hover. Colour transitions white to gold. 300ms ease. The gold bullet separator between links can pulse once on page load.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Collections Grid — Hover</div>
+      <div class="interaction-desc">On hovering a product tile: the flat image/render cross-fades to a gentle 3D rotation preview (autoRotate, very slow). The tile lifts 4px, border brightens to gold. Product name and price slide up from below.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Product Page — 3D Viewer</div>
+      <div class="interaction-desc">OrbitControls enabled, damping on. Limit polar angle to prevent flipping. Users should be able to rotate freely and pinch-zoom. Add a subtle hint animation on first load: the model slowly rotates 45° then stops — showing that it's interactive.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Scroll — Homepage</div>
+      <div class="interaction-desc">Sections use Framer Motion's useScroll + useTransform. As user scrolls past hero, the ring scales down and drifts upward off-screen. The next section (brand statement) rises in from below. This creates a parallax "layer" feeling.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">CTA Buttons</div>
+      <div class="interaction-desc">No background fill by default — just a 1px gold border and gold text. On hover: border brightens, letter spacing expands by 0.05em, a subtle background fill (5% gold opacity) bleeds in. No scale transforms — that's too playful for this brand.</div>
+    </div>
+
+    <div class="interaction-item">
+      <div class="interaction-trigger">Custom Cursor</div>
+      <div class="interaction-desc">Replace the default cursor with a small circle (16px, 1px gold border, no fill). On hovering anything interactive it expands to 40px and fills with gold at 10% opacity. Implement with a lerped JS position tracker — never snap to cursor position directly.</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- 08 BUILD CHECKLIST -->
+<section class="section" id="checklist">
+  <div class="section-header">
+    <span class="section-num">08</span>
+    <h2 class="section-title">Build <em>Checklist</em></h2>
+  </div>
+
+  <div class="prose" style="margin-bottom:40px;">
+    <p>Click items to mark them done. This is your build order — roughly sequenced from foundations to polish.</p>
+  </div>
+
+  <div class="checklist" id="checklist-container">
+
+    <div class="check-group">
+      <div class="check-group-title">Foundation</div>
+      <div class="check-item done" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Liquid background shader (WebGL / Three.js)</div>
+          <div class="check-sub">Already done ✓</div>
+        </div>
+      </div>
+      <div class="check-item done" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Initial ring 3D model loaded in R3F</div>
+          <div class="check-sub">Already done ✓</div>
+        </div>
+      </div>
+      <div class="check-item done" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Navigation structure (Collections · Atelier · Archive)</div>
+          <div class="check-sub">Already done ✓</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Install Google Fonts: Cormorant Garamond, Tenor Sans, Space Mono</div>
+          <div class="check-sub">next/font or @import</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Define CSS custom properties / Tailwind tokens for colour system</div>
+          <div class="check-sub">--gold, --void, --surface, --parchment, --stone</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="check-group-title">Hero — Homepage</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Remove auto-rotation from ring</div>
+          <div class="check-sub">Replace with idle oscillation + cursor parallax</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Add MeshPhysicalMaterial + HDR environment map to ring</div>
+          <div class="check-sub">Poly Haven "jewelry_store" HDR recommended</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Add bloom post-processing pass</div>
+          <div class="check-sub">@react-three/postprocessing — subtle, not sci-fi</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Implement page-enter animation sequence</div>
+          <div class="check-sub">Background → ring scale → nav fade → copy stagger</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Add hero copy: eyebrow + headline + body paragraph</div>
+          <div class="check-sub">Use copy from Section 05 of this spec</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Style ONYX wordmark — "N" in gold, rest in parchment</div>
+          <div class="check-sub">Cormorant Garamond, 300 weight, tracked</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Implement custom cursor (circle, gold border)</div>
+          <div class="check-sub">Lerp-tracked, expands on hover states</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="check-group-title">Homepage — Scroll Sections</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Brand statement section with Framer Motion scroll parallax</div>
+          <div class="check-sub">"We believe a piece of jewellery should stop time…"</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Featured collection strip — 3 product cards</div>
+          <div class="check-sub">3D hover preview on each card</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Atelier teaser — short copy + CTA "Write to the Atelier"</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Footer — wordmark, nav links, Instagram, email</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="check-group-title">Collections Page</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Source / acquire 3D models: necklace, earrings, signet ring</div>
+          <div class="check-sub">GLB format, &lt;5MB each, PBR materials</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Asymmetric product grid layout</div>
+          <div class="check-sub">Mix of portrait and landscape tiles — not uniform</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Hover state: 3D slow-rotate preview on product tiles</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Filter bar: All · Rings · Necklaces · Earrings · Cuffs</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="check-group-title">Product Detail Page</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Full-screen R3F viewer with OrbitControls</div>
+          <div class="check-sub">Damping on, limit polar angle, pinch-zoom support</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Write product copy for each piece (use spec template)</div>
+          <div class="check-sub">Name · Materials · Weight · Story paragraph · CTA</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Enquiry modal or link to Atelier contact</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="check-group-title">Atelier & Archive Pages</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Atelier page — manifesto, 4-step process, bespoke enquiry form</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Archive page — year-filtered grid, minimal editorial layout</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="check-group">
+      <div class="check-group-title">Polish & Performance</div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Optimise all GLB models with gltf-transform</div>
+          <div class="check-sub">Target &lt;5MB total on homepage</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Add loading state — simple progress line in gold</div>
+          <div class="check-sub">Show while shaders and 3D assets initialise</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Mobile layout — single column, simplified 3D (maybe static render)</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Test on Safari — WebGL behaviour differs</div>
+        </div>
+      </div>
+      <div class="check-item" onclick="toggleCheck(this)">
+        <div class="check-box"></div>
+        <div>
+          <div class="check-text">Add meta tags: OG image (the ring render), title, description</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="spec-footer">
+  <p>ONYX · Design Specification v1.0 · Produced by Claude for the Developer</p>
+</footer>
+
+<script>
+  function toggleCheck(el) {
+    el.classList.toggle('done');
+  }
+</script>
+
+</body>
+</html>

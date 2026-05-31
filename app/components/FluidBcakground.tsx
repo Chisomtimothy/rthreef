@@ -7,7 +7,7 @@ import * as THREE from 'three'
 
 const CosWaveMaterial = shaderMaterial(
   { 
-    iTime: 0, 
+    iTime: 0,
     iResolution: new THREE.Vector2(),
     colorA: new THREE.Color(0.015, 0.015, 0.015),
     colorB: new THREE.Color(0.6, 0.6, 0.6)
