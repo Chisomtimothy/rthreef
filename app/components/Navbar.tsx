@@ -10,13 +10,13 @@ const Navbar = () => {
       // style={{fontFamily: '"Inter", sans-serif'}}
     >
         <div className='flex justify-between items-center'>
-            <div className='logo-font text-[8px] tracking-[2px] bg-white/90 backdrop-blur-[10px] px-3 py-1 rounded-full'>
+            <div className='logo-font text-[8px] tracking-[2px] bg-white/10 backdrop-blur-[10px] px-3 py-1 rounded-full'>
               <div className='mix-blend-difference'>
                 O <span className='text-[#C9A84C]'>N</span> Y X
               </div>
             </div>
 
-            <div className='lg:hidden gap-5 flex justify-between items-center mix-blend-difference bg-white/90 backdrop-blur-[10px] px-3 py-1 rounded-full'>
+            <div className='lg:hidden gap-5 flex justify-between items-center mix-blend-difference bg-white/10 backdrop-blur-[10px] px-3 py-1 rounded-full'>
               <button className='text-[11px] mix-blend-difference'>
                 <span className=''>+</span>
               </button>

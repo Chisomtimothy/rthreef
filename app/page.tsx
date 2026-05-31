@@ -97,9 +97,9 @@ const Home = () => {
             <Model position={[0, 0, 0.3]} rotation={[Math.PI * 0.5, 0, 0]} />
             <Model position={[0.4, 0, 0]} rotation={[Math.PI * -0.5, 0, 0]} /> */}
 
-            {/* <Model position={[-0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} />
+            <Model position={[-0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} />
             <Model position={[0, 0.06, 0.25]} rotation={[Math.PI * 0.5, 0, 0]} />
-            <Model position={[0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} /> */}
+            <Model position={[0.16, -0.13, 0]} rotation={[Math.PI * -0.5, 0, 0]} />
 
             <Environment files='studio.exr' environmentIntensity={0.4} />
           </Canvas>
